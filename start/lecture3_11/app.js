@@ -1,12 +1,12 @@
 import * as THREE from '../../libs/three125/three.module.js';
-import { OrbitControls } from '../../libs/three/jsm/OrbitControls.js';
-import { GLTFLoader } from '../../libs/three/jsm/GLTFLoader.js';
+import { OrbitControls } from '../../libs/three125/OrbitControls.js';
+import { GLTFLoader } from '../../libs/three125/GLTFLoader.js';
 import { Stats } from '../../libs/stats.module.js';
-import { CanvasUI } from '../../libs/CanvasUI.js'
+import { CanvasUI } from '../../libs/three125/CanvasUI.js'
 import { ARButton } from '../../libs/ARButton.js';
 import { LoadingBar } from '../../libs/LoadingBar.js';
-import { Player } from '../../libs/Player.js';
-import { ControllerGestures } from '../../libs/ControllerGestures.js';
+import { Player } from '../../libs/three125/Player.js';
+import { ControllerGestures } from '../../libs/three125/ControllerGestures.js'; 
 
 class App{
 	constructor(){
@@ -39,6 +39,7 @@ class App{
         this.controls.update();
         
         this.stats = new Stats();
+        document.body.appendChild( this.stats.dom );
         
         this.origin = new THREE.Vector3();
         this.euler = new THREE.Euler();
@@ -111,7 +112,7 @@ class App{
     createUI() {
         
         const config = {
-            panelSize: { width: 0.2, height: 0.05 },
+            panelSize: { width: 0.15, height: 0.038 },
             height: 128,
             info:{ type: "text" }
         }
@@ -131,7 +132,7 @@ class App{
         let controller, controller1;
         
         function onSessionStart(){
-            self.ui.mesh.position.set( 0, -0.2, -0.3 );
+            self.ui.mesh.position.set( 0, -0.15, -0.3 );
             self.camera.add( self.ui.mesh );
         }
         
@@ -139,63 +140,64 @@ class App{
             self.camera.remove( self.ui.mesh );
         }
         
-        const btn = new ARButton( this.renderer, { onSessionStart, onSessionEnd } );
+        const btn = new ARButton( this.renderer, { onSessionStart, onSessionEnd });//, sessionInit: { optionalFeatures: [ 'dom-overlay' ], domOverlay: { root: document.body } } } );
         
-        //Add gestures here
         this.gestures = new ControllerGestures( this.renderer );
-
         this.gestures.addEventListener( 'tap', (ev)=>{
-            console.log('tap');
-            self.ui.updateElement('info', 'tap');
-
-            if(!self.knight.object.visible){
+            //console.log( 'tap' ); 
+            self.ui.updateElement('info', 'tap' );
+            if (!self.knight.object.visible){
                 self.knight.object.visible = true;
-                self.knight.object.position.set(0, -0.3, -0.5).add( ev.position );
-                self.scene.add( self.knight.object );
+                self.knight.object.position.set( 0, -0.3, -0.5 ).add( ev.position );
+                self.scene.add( self.knight.object ); 
             }
         });
-
-        this.gestures.addEventListener( 'swipe', (ev)=> {
-            console.log(ev);
-            self.ui.updateElement( 'info', `swipe ${ev.direction}`);
-            if (self.knight.object.visible) {
-                self.knight.object.visible = false;
-                self.scene.remove( self.knight.object );
-            }
-        })
-
-        this.gestures.addEventListener( 'pan', (ev)=> {
-            console.log(ev);
+        this.gestures.addEventListener( 'doubletap', (ev)=>{
+            //console.log( 'doubletap'); 
+            self.ui.updateElement('info', 'doubletap' );
+        });
+        this.gestures.addEventListener( 'press', (ev)=>{
+            //console.log( 'press' );    
+            self.ui.updateElement('info', 'press' );
+        });
+        this.gestures.addEventListener( 'pan', (ev)=>{
+            //console.log( ev );
             if (ev.initialise !== undefined){
-                self.startPosition = self.knight.object.position.clone()
-            } else {
-                const pos = self.startPosition.clone().add(ev.delta.multiplyScalar(3));
+                self.startPosition = self.knight.object.position.clone();
+            }else{
+                const pos = self.startPosition.clone().add( ev.delta.multiplyScalar(3) );
                 self.knight.object.position.copy( pos );
-                self.ui.updateElement( 'info', `pan x:${ev.delta.x.toFixed(3)} y:${ev.delta.y.toFixed(3)} z:${ev.delta.z.toFixed(3)}`);
+                self.ui.updateElement('info', `pan x:${ev.delta.x.toFixed(3)}, y:${ev.delta.y.toFixed(3)}, x:${ev.delta.z.toFixed(3)}` );
+            } 
+        });
+        this.gestures.addEventListener( 'swipe', (ev)=>{
+            //console.log( ev );   
+            self.ui.updateElement('info', `swipe ${ev.direction}` );
+            if (self.knight.object.visible){
+                self.knight.object.visible = false;
+                self.scene.remove( self.knight.object ); 
             }
-        })
-
+        });
         this.gestures.addEventListener( 'pinch', (ev)=>{
-            console.log(ev);
+            //console.log( ev );  
             if (ev.initialise !== undefined){
                 self.startScale = self.knight.object.scale.clone();
-            } else {
-                const scale = self.startScale.clone().multiplyScalar( ev.scale );
-                self.knight.object.scale.copy(scale);
-                self.ui.updateElement( 'info', `pinch delta:${ev.delta.toFixed(3)} scale: ${ev.scale.toFixed(2)}`);
+            }else{
+                const scale = self.startScale.clone().multiplyScalar(ev.scale);
+                self.knight.object.scale.copy( scale );
+                self.ui.updateElement('info', `pinch delta:${ev.delta.toFixed(3)} scale:${ev.scale.toFixed(2)}` );
             }
-        })
-
+        });
         this.gestures.addEventListener( 'rotate', (ev)=>{
-            console.log(ev);
+            //      sconsole.log( ev ); 
             if (ev.initialise !== undefined){
                 self.startQuaternion = self.knight.object.quaternion.clone();
-            } else {
+            }else{
                 self.knight.object.quaternion.copy( self.startQuaternion );
                 self.knight.object.rotateY( ev.theta );
-                self.ui.updateElement( 'info', `rotate :${ev.theta.toFixed(3)}`);
+                self.ui.updateElement('info', `rotate ${ev.theta.toFixed(3)}`  );
             }
-        })
+        });
         
         this.renderer.setAnimationLoop( this.render.bind(this) );
     }
