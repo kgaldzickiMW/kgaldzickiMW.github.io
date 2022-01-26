@@ -1,5 +1,5 @@
 import * as THREE from '../../libs/three125/three.module.js';
-import { OrbitControls } from '../../libs/three125/jsm/OrbitControls.js';
+import { OrbitControls } from '../../libs/three/jsm/OrbitControls.js';
 import { GLTFLoader } from '../../libs/three/jsm/GLTFLoader.js';
 import { Stats } from '../../libs/stats.module.js';
 import { CanvasUI } from '../../libs/CanvasUI.js'
