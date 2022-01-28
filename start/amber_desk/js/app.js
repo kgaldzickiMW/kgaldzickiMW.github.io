@@ -10,7 +10,6 @@ var APP = {
 
 		var loader = new THREE.ObjectLoader();
 		var camera, scene;
-		this.scene = null;
 
 		var vrButton = VRButton.createButton( renderer ); // eslint-disable-line no-undef
 
@@ -35,13 +34,10 @@ var APP = {
 			if ( project.toneMappingExposure !== undefined ) renderer.toneMappingExposure = project.toneMappingExposure;
 			if ( project.physicallyCorrectLights !== undefined ) renderer.physicallyCorrectLights = project.physicallyCorrectLights;
 
-			this.sceneCopy = loader.parse( json.scene );
 			this.setScene( loader.parse( json.scene ) );
-
+			this.newScene = this.setScene( loader.parse( json.scene ) );
 			this.setCamera( loader.parse( json.camera ) );
 
-			// Project json loading scripts
-			
 			events = {
 				init: [],
 				start: [],
@@ -68,7 +64,7 @@ var APP = {
 
 			for ( var uuid in json.scripts ) {
 
-				var object = this.scene.getObjectByProperty( 'uuid', uuid, true );
+				var object = scene.getObjectByProperty( 'uuid', uuid, true );
 
 				if ( object === undefined ) {
 
@@ -83,7 +79,7 @@ var APP = {
 
 					var script = scripts[ i ];
 
-					var functions = ( new Function( scriptWrapParams, script.source + '\nreturn ' + scriptWrapResult + ';' ).bind( object ) )( this, renderer, this.scene, camera );
+					var functions = ( new Function( scriptWrapParams, script.source + '\nreturn ' + scriptWrapResult + ';' ).bind( object ) )( this, renderer, scene, camera );
 
 					for ( var name in functions ) {
 
@@ -122,7 +118,7 @@ var APP = {
 
 		this.setScene = function ( value ) {
 
-			this.scene = value;
+			scene = value;
 
 		};
 
@@ -178,7 +174,7 @@ var APP = {
 
 			}
 
-			renderer.render( this.scene, camera );
+			renderer.render( scene, camera );
 
 			prevTime = time;
 
@@ -222,7 +218,7 @@ var APP = {
 
 			dispatch( events.update, { time: time * 1000, delta: 0 /* TODO */ } );
 
-			renderer.render( this.scene, camera );
+			renderer.render( scene, camera );
 
 		};
 
@@ -266,12 +262,6 @@ var APP = {
 			dispatch( events.pointermove, event );
 
 		}
-
-		this.clickAction = function ( ) {
-
-			console.log(this.sceneCopy);
-
-		};
 
 	}
 
