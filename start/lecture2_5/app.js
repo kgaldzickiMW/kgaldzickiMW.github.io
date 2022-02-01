@@ -64,6 +64,7 @@ class App{
     setScene ( text ) {
         let json = JSON.parse( text);
         this.scene = this.loader.parse( json.scene );
+        this.scene.children[0].position.set(0, -1, -0.5);
         // this.scene.background = new THREE.Color( 0x777777 );
         this.originalWrapBox = new THREE.Box3().setFromObject( this.scene.children[0] );
         this.originalObjectDimm = this.originalWrapBox.max.subVectors(this.originalWrapBox.max, this.originalWrapBox.min);
@@ -78,26 +79,26 @@ class App{
 
         console.log(self);
 
-        function onSelect(self, that) {
-            // const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF * Math.random( )});
-            // const mesh = new THREE.Mesh( self.geometry, material );
-            // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
-            // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-            console.log(self);
-            console.log(this);
-            console.log(that);
-            self.fileLoader.load( 'app.json', self.setScene.bind(self));
+        // function onSelect(self, that) {
+        //     // const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF * Math.random( )});
+        //     // const mesh = new THREE.Mesh( self.geometry, material );
+        //     // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
+        //     // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+        //     console.log(self);
+        //     console.log(this);
+        //     console.log(that);
+        //     self.fileLoader.load( 'app.json', self.setScene.bind(self));
 
 
-            // self.scene.add(mesh);
-            // self.meshes.push(mesh);
-        }
+        //     // self.scene.add(mesh);
+        //     // self.meshes.push(mesh);
+        // }
         
         const btn = new ARButton( this.renderer );
 
-        controller = this.renderer.xr.getController(0);
-        controller.addEventListener( 'select', this.onSelect.bind(this) );
-        this.scene.add(controller);
+        this.controller = this.renderer.xr.getController(0);
+        this.controller.addEventListener( 'select', this.onSelect.bind(this) );
+        this.scene.add(this.controller);
 
         this.renderer.setAnimationLoop( this.render.bind(this) );
     }
@@ -108,7 +109,12 @@ class App{
         // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
         // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
         console.log(this);
-        this.fileLoader.load( 'app.json', this.setScene.bind(this));
+        if (this.scene.children[0].children[0]) {
+            this.scene.children[0].positionChange.set(0, -1, -0.5).applyMatrix4( this.controller.matrixWorld );
+        } else {
+            console.log(this);
+            this.fileLoader.load( 'app.json', this.setScene.bind(this));
+        }
 
 
         // self.scene.add(mesh);
