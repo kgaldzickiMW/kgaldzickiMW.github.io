@@ -1,5 +1,7 @@
-import * as THREE from '../../libs/three/three.module.js';
-import { OrbitControls } from '../../libs/three/jsm/OrbitControls.js';
+import * as THREE from '../../libs/three125/three.module.js';
+import { OrbitControls } from '../../libs/three125/OrbitControls.js';
+import { Stats } from '../../libs/stats.module.js';
+import { ARButton } from '../../libs/ARButton.js';
 
 class App{
 	constructor(){
@@ -16,7 +18,7 @@ class App{
         
         // SCENE
 		this.scene = new THREE.Scene();
-        var scene;
+        // var scene;
         // this.scene.background = new THREE.Color( 0xaaaaaa );
 
         // // LIGHTS
@@ -40,28 +42,21 @@ class App{
 
         // this.mesh = new THREE.Mesh( geometry, material );
         
-        this.fileLoader.load( 'app.json', this.setScene.bind(this)); 
-        //     let json = JSON.parse( text);
-        //     console.log(this);
-        //     this.loader = new THREE.ObjectLoader();
-        //     scene = this.loader.parse( json.scene );
-        //     return scene;
-        // });
+        // this.fileLoader.load( 'app.json', this.setScene.bind(this)); 
 
-        console.log(this.scene);
-        // console.log(this);
-        // this.scene = scene;
-        
-        // this.object = this.loader.parse( this.json_object.scene );
 
         // ADD MODEL
         // this.scene.add(this.object);
         
 
         // OTHER
-        const controls = new OrbitControls( this.camera, this.renderer.domElement );
+        this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+        this.controls.target.set(0, 3.5, 0);
+        this.controls.update();
         
-        this.renderer.setAnimationLoop(this.render.bind(this));
+        // this.renderer.setAnimationLoop(this.render.bind(this));
+
+        this.setupXR();
     
         window.addEventListener('resize', this.resize.bind(this) );
 	}	
@@ -69,10 +64,55 @@ class App{
     setScene ( text ) {
         let json = JSON.parse( text);
         this.scene = this.loader.parse( json.scene );
-        this.scene.background = new THREE.Color( 0x777777 );
+        // this.scene.background = new THREE.Color( 0x777777 );
         this.originalWrapBox = new THREE.Box3().setFromObject( this.scene.children[0] );
         this.originalObjectDimm = this.originalWrapBox.max.subVectors(this.originalWrapBox.max, this.originalWrapBox.min);
         // console.log(this);
+    }
+
+    setupXR(){
+        this.renderer.xr.enabled = true;
+
+        const self = this;
+        let controller;
+
+        console.log(self);
+
+        function onSelect(self, that) {
+            // const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF * Math.random( )});
+            // const mesh = new THREE.Mesh( self.geometry, material );
+            // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
+            // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+            console.log(self);
+            console.log(this);
+            console.log(that);
+            self.fileLoader.load( 'app.json', self.setScene.bind(self));
+
+
+            // self.scene.add(mesh);
+            // self.meshes.push(mesh);
+        }
+        
+        const btn = new ARButton( this.renderer );
+
+        controller = this.renderer.xr.getController(0);
+        controller.addEventListener( 'select', this.onSelect.bind(this) );
+        this.scene.add(controller);
+
+        this.renderer.setAnimationLoop( this.render.bind(this) );
+    }
+
+    onSelect() {
+        // const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF * Math.random( )});
+        // const mesh = new THREE.Mesh( self.geometry, material );
+        // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
+        // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+        console.log(this);
+        this.fileLoader.load( 'app.json', this.setScene.bind(this));
+
+
+        // self.scene.add(mesh);
+        // self.meshes.push(mesh);
     }
         
 
