@@ -1,5 +1,6 @@
 import * as THREE from '../../libs/three125/three.module.js';
 import { OrbitControls } from '../../libs/three125/OrbitControls.js';
+import { RGBELoader } from '../../libs/three/jsm/RGBELoader.js';
 import { Stats } from '../../libs/stats.module.js';
 import { ARButton } from '../../libs/ARButton.js';
 
@@ -14,39 +15,36 @@ class App{
         
         // CAMERA
 		this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
-		this.camera.position.set( 0, 0, 4 );
+		this.camera.position.set( 0, 1.6, 0 );
         
         // SCENE
 		this.scene = new THREE.Scene();
-        // var scene;
-        // this.scene.background = new THREE.Color( 0xaaaaaa );
 
-        // // LIGHTS
-		// const ambient = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 0.3);
-		// this.scene.add(ambient);
-        
-        // const light = new THREE.DirectionalLight();
-        // light.position.set( 0.2, 1, 1);
-        // this.scene.add(light);
+        // LIGHT
+        const ambient = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+        ambient.position.set( 0.5, 1, 0.25 );
+		this.scene.add(ambient)
+
 			
         // RENDERER
 		this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true } );
 		this.renderer.setPixelRatio( window.devicePixelRatio );
 		this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
 		container.appendChild( this.renderer.domElement );
-		
-        // // MODEL
-        // const geometry = new THREE.TorusKnotBufferGeometry( 0.8, 0.3, 120, 16 ); 
+
+        this.setEnvironment();
+        this.initAR();
+
+        // POSITION CIRCLE
+        this.reticle = new THREE.Mesh(
+            new THREE.RingBufferGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+            new THREE.MeshBasicMaterial()
+        );
         
-        // const material = new THREE.MeshPhongMaterial( { color: 0xff00ff, specular: 0x444444, shininess: 60 } );
-
-        // this.mesh = new THREE.Mesh( geometry, material );
-        
-        // this.fileLoader.load( 'app.json', this.setScene.bind(this)); 
-
-
-        // ADD MODEL
-        // this.scene.add(this.object);
+        this.reticle.matrixAutoUpdate = false;
+        this.reticle.visible = false;
+        this.scene.add( this.reticle );
         
 
         // OTHER
@@ -54,7 +52,6 @@ class App{
         this.controls.target.set(0, 3.5, 0);
         this.controls.update();
         
-        // this.renderer.setAnimationLoop(this.render.bind(this));
 
         this.setupXR();
     
@@ -64,36 +61,38 @@ class App{
     setScene ( text ) {
         let json = JSON.parse( text);
         this.scene = this.loader.parse( json.scene );
-        this.scene.children[0].position.set(0, -1, -0.5);
-        // this.scene.background = new THREE.Color( 0x777777 );
-        this.originalWrapBox = new THREE.Box3().setFromObject( this.scene.children[0] );
-        this.originalObjectDimm = this.originalWrapBox.max.subVectors(this.originalWrapBox.max, this.originalWrapBox.min);
-        // console.log(this);
+        // this.scene.add( json.scene );
+        // this.scene.children[0].position.set(0, -1, -0.5);
+        if (this.scene.children[0].children[0]) {
+            this.originalWrapBox = new THREE.Box3().setFromObject( this.scene.children[0] );
+            this.originalObjectDimm = this.originalWrapBox.max.subVectors(this.originalWrapBox.max, this.originalWrapBox.min);
+        }
     }
+
+    
 
     setupXR(){
         this.renderer.xr.enabled = true;
+        
+        //TO DO 1: If navigator includes xr and immersive-ar is supported then show the ar-button class
+        if ('xr' in navigator) {
+            navigator.xr.isSessionSupported( 'immersive-ar' ).then( (supported)=>{
+                if (supported) {
+                    const collection = document.getElementsByClassName("ar-button");
+                    [...collection].forEach( el => {
+                        el.style.display = 'block';
+                    })
+                }
+            })
+        }
 
         const self = this;
-        let controller;
 
-        console.log(self);
+        this.hitTestSourceRequested = false;
+        this.hitTestSource = null;
 
-        // function onSelect(self, that) {
-        //     // const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF * Math.random( )});
-        //     // const mesh = new THREE.Mesh( self.geometry, material );
-        //     // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
-        //     // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-        //     console.log(self);
-        //     console.log(this);
-        //     console.log(that);
-        //     self.fileLoader.load( 'app.json', self.setScene.bind(self));
-
-
-        //     // self.scene.add(mesh);
-        //     // self.meshes.push(mesh);
-        // }
         
+
         const btn = new ARButton( this.renderer );
 
         this.controller = this.renderer.xr.getController(0);
@@ -103,14 +102,27 @@ class App{
         this.renderer.setAnimationLoop( this.render.bind(this) );
     }
 
+    resize(){
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize( window.innerWidth, window.innerHeight );  
+    }
+
+
     onSelect() {
         // const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF * Math.random( )});
         // const mesh = new THREE.Mesh( self.geometry, material );
         // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
         // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
         console.log(this);
-        if (this.scene.children[0].children[0]) {
-            this.scene.children[0].positionChange.set(0, -1, -0.5).applyMatrix4( this.controller.matrixWorld );
+        this.desk = this.scene.children[0]
+
+        if (this.desk.children[0]) {
+            if (this.reticle.visible){
+                this.desk.position.setFromMatrixPosition( this.reticle.matrix );
+                // self.chair.visible = true;
+            }
+            // this.desk.positionChange.set(0, -1, -1.5).applyMatrix4( this.controller.matrixWorld );
         } else {
             console.log(this);
             this.fileLoader.load( 'app.json', this.setScene.bind(this));
@@ -121,17 +133,157 @@ class App{
         // self.meshes.push(mesh);
     }
         
+    
+	setEnvironment(){
+        const loader = new RGBELoader().setDataType( THREE.UnsignedByteType );
+        const pmremGenerator = new THREE.PMREMGenerator( this.renderer );
+        pmremGenerator.compileEquirectangularShader();
+        
+        const self = this;
+        
+        loader.load( '../../assets/hdr/venice_sunset_1k.hdr', ( texture ) => {
+          const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+          pmremGenerator.dispose();
 
-    resize(){
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );  
+          self.scene.environment = envMap;
+
+        }, undefined, (err)=>{
+            console.error( 'An error occurred setting the environment');
+        } );
     }
     
-	render( ) {   
-        // console.log(this.scene)
-        this.renderer.render( this.scene, this.camera );
+	// showChair(id){
+    //     this.initAR();
+        
+	// 	const loader = new GLTFLoader( ).setPath(this.assetsPath);
+    //     const self = this;
+        
+    //     this.loadingBar.visible = true;
+		
+	// 	// Load a glTF resource
+	// 	loader.load(
+	// 		// resource URL
+	// 		`chair${id}.glb`,
+	// 		// called when the resource is loaded
+	// 		function ( gltf ) {
+
+	// 			self.scene.add( gltf.scene );
+    //             self.chair = gltf.scene;
+        
+    //             self.chair.visible = false; 
+                
+    //             self.loadingBar.visible = false;
+                
+    //             self.renderer.setAnimationLoop( self.render.bind(self) );
+	// 		},
+	// 		// called while loading is progressing
+	// 		function ( xhr ) {
+
+	// 			self.loadingBar.progress = (xhr.loaded / xhr.total);
+				
+	// 		},
+	// 		// called when loading has errors
+	// 		function ( error ) {
+
+	// 			console.log( 'An error happened' );
+
+	// 		}
+	// 	);
+	// }			
+    
+    initAR(){
+        //TO DO 2: Start an AR session
+        let currentSession = null;
+        const self = this;
+
+        const sessionInit = { requiredFeatures: ['hit-test']};
+
+        function onSessionStarted( session ){
+            session.addEventListener( 'end', onSessionEnded );
+
+            self.renderer.xr.setReferenceSpaceType( 'local' );
+            self.renderer.xr.setSession( session );
+
+            currentSession = session;
+        }
+
+        function onSessionEnded() {
+            currentSession.removeEventListener( 'end', onSessionEnded );
+            currentSession = null;
+
+            if (self.chair !== null) {
+                self.scene.remove( self.chair );
+                self.chair = null;
+            }
+
+            self.renderer.setAnimationLoop( null );
+        }
+
+        navigator.xr.requestSession( 'immersive-ar', sessionInit ).then(onSessionStarted)
     }
+    
+    requestHitTestSource(){
+        const self = this;
+        
+        const session = this.renderer.xr.getSession();
+
+        session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
+            
+            session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+
+                self.hitTestSource = source;
+
+            } );
+
+        } );
+
+        session.addEventListener( 'end', function () {
+
+            self.hitTestSourceRequested = false;
+            self.hitTestSource = null;
+            self.referenceSpace = null;
+
+        } );
+
+        this.hitTestSourceRequested = true;
+
+    }
+    
+    getHitTestResults( frame ){
+        const hitTestResults = frame.getHitTestResults( this.hitTestSource );
+
+        if ( hitTestResults.length ) {
+            
+            const referenceSpace = this.renderer.xr.getReferenceSpace();
+            const hit = hitTestResults[ 0 ];
+            const pose = hit.getPose( referenceSpace );
+
+            this.reticle.visible = true;
+            this.reticle.matrix.fromArray( pose.transform.matrix );
+
+        } else {
+
+            this.reticle.visible = false;
+
+        }
+
+    }
+    
+	render( timestamp, frame ) {
+
+        if ( frame ) {
+            if ( this.hitTestSourceRequested === false ) this.requestHitTestSource( )
+
+            if ( this.hitTestSource ) this.getHitTestResults( frame );
+        }
+
+        this.renderer.render( this.scene, this.camera );
+
+    }
+
+
+
+    // RESIZE FUNCTIONS --------------------------------------------------------------------------------------------------------------
 
     setSize( Mesh, xSize, ySize=Mesh.geometry.parameters.height, zSize=Mesh.geometry.parameters.depth) {
         let scaleFactorX, scaleFactorY, scaleFactorZ;
@@ -140,6 +292,7 @@ class App{
         scaleFactorZ = zSize / Mesh.geometry.parameters.depth;
         Mesh.scale.set( scaleFactorX, scaleFactorY, scaleFactorZ );
     }
+
 
     setWidth( object, xSize) {
         let maxBoardThickness = 0.06;
@@ -172,33 +325,13 @@ class App{
                 }
             }
         }
-        
-        // let scaleFactorX, scaleFactorY, scaleFactorZ;
-        // scaleFactorX = xSize / Mesh.geometry.parameters.width;
-        // scaleFactorY = ySize / Mesh.geometry.parameters.height;
-        // scaleFactorZ = zSize / Mesh.geometry.parameters.depth;
-        // Mesh.scale.set( scaleFactorX, scaleFactorY, scaleFactorZ );
     }
 
     clickAction( ) {
 
-        // this.scene.children[0].children[0].scale.x += 0.02;
         var slider = document.getElementById("myRange");
         console.log(slider.value);
         this.setWidth.bind(this, this.scene.children[0], 1.40);
-        // this.setSize(this.scene.children[0].children[0], 1.40, 0.018, 0.7);
-        // this.setSize(this.scene.children[0].getObjectByName('Facha'), (1.40-0.036));
-        // var xSize, ySize, zSize;
-        // xSize = ySize = zSize = 1.2;
-        // let blat = this.scene.children[0].children[0];
-        // let scaleFactorX = xSize / blat.geometry.parameters.width;
-        // let scaleFactorY = ySize / blat.geometry.parameters.height;
-        // let scaleFactorZ = zSize / blat.geometry.parameters.depth;
-        // console.log(scaleFactorX, scaleFactorY, scaleFactorZ);
-        // console.log(this.scene.children[0].children[0].geometry.parameters);
-        // console.log(this.scene.children[0]);
-        // this.scene.background = new THREE.Color( 0x000000 );
-        // this.scene.background = new THREE.Color( 0x000000 );
 
     }
 
