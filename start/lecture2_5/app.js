@@ -58,13 +58,15 @@ class App{
         window.addEventListener('resize', this.resize.bind(this) );
 	}	
     
-    setScene ( text ) {
+    addObjectFromJson ( text ) {
         let json = JSON.parse( text);
-        this.scene = this.loader.parse( json.scene );
+        this.desk = this.loader.parse( json.object );
+        this.scene.add(this.desk);
+        // this.objectNumber = this.scene.children.length - 1;
         // this.scene.add( json.scene );
         // this.scene.children[0].position.set(0, -1, -0.5);
-        if (this.scene.children[0].children[0]) {
-            this.originalWrapBox = new THREE.Box3().setFromObject( this.scene.children[0] );
+        if (this.desk) {
+            this.originalWrapBox = new THREE.Box3().setFromObject( this.desk );
             this.originalObjectDimm = this.originalWrapBox.max.subVectors(this.originalWrapBox.max, this.originalWrapBox.min);
         }
     }
@@ -114,19 +116,18 @@ class App{
         // const mesh = new THREE.Mesh( self.geometry, material );
         // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
         // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-        console.log(this);
-        this.desk = this.scene.children[0]
+        // console.log(this);
+        // this.desk = this.scene.children[0]
 
-        if (this.desk.children[0]) {
-            if (this.reticle.visible){
+        if (this.reticle.visible){ 
+            if (this.desk) {
                 this.desk.position.setFromMatrixPosition( this.reticle.matrix );
-                // self.chair.visible = true;
+                }
+                // this.desk.positionChange.set(0, -1, -1.5).applyMatrix4( this.controller.matrixWorld );
+            } else {
+                this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
+                this.desk.position.setFromMatrixPosition( this.reticle.matrix );
             }
-            // this.desk.positionChange.set(0, -1, -1.5).applyMatrix4( this.controller.matrixWorld );
-        } else {
-            console.log(this);
-            this.fileLoader.load( 'app.json', this.setScene.bind(this));
-        }
 
 
         // self.scene.add(mesh);
@@ -211,9 +212,9 @@ class App{
             currentSession.removeEventListener( 'end', onSessionEnded );
             currentSession = null;
 
-            if (self.chair !== null) {
-                self.scene.remove( self.chair );
-                self.chair = null;
+            if (self.desk !== null) {
+                self.scene.remove( self.desk );
+                self.desk = null;
             }
 
             self.renderer.setAnimationLoop( null );
