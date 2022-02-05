@@ -130,6 +130,8 @@ class ARButton{
                 // requestReferenceSpace call will fail if it turns out to be unavailable.
                 // ('local' is always available for immersive sessions and doesn't need to
                 // be requested separately.)
+
+                const sessionInit = { requiredFeatures: ['hit-test']};
                 
                 navigator.xr.requestSession( 'immersive-ar', self.sessionInit ).then( onSessionStarted );
 

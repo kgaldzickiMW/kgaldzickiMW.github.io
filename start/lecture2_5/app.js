@@ -97,7 +97,7 @@ class App{
 
         
 
-        const btn = new ARButton( this.renderer, { requiredFeatures: [ 'hit-test' ] }  );
+        const btn = new ARButton( this.renderer );
 
         this.controller = this.renderer.xr.getController(0);
         this.controller.addEventListener( 'select', this.onSelect.bind(this) );
