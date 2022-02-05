@@ -34,7 +34,7 @@ class App{
 		container.appendChild( this.renderer.domElement );
 
         this.setEnvironment();
-        this.initAR();
+        // this.initAR();
 
         // POSITION CIRCLE
         this.reticle = new THREE.Mesh(
@@ -120,15 +120,16 @@ class App{
         // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
         // console.log(this);
         // this.desk = this.scene.children[0]
-        console.log(this);
+        this.initAR.bind(this);
+        // console.log(this);
         if (this.reticle.visible){ 
-            console.log('test3');
-            console.log(this.desk);
+            // console.log('test3');
+            // console.log(this.desk);
             if (this.desk) {
-                console.log('test4');
+                // console.log('test4');
                 this.desk.position.setFromMatrixPosition( this.reticle.matrix );
                 } else {
-                    console.log('test5');
+                    // console.log('test5');
                     this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
                     // this.desk.position.setFromMatrixPosition( this.reticle.matrix );
                 }
