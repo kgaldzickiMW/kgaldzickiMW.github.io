@@ -45,7 +45,10 @@ class App{
         this.reticle.matrixAutoUpdate = false;
         this.reticle.visible = false;
         this.scene.add( this.reticle );
-        
+
+        // TEXTURE
+        this.textureLoader = new THREE.TextureLoader();
+        this.dekorLegno = this.textureLoader.load( 'textures/legno_jasne_r_48026.jpg' );
 
         // OTHER
         this.controls = new OrbitControls( this.camera, this.renderer.domElement );
@@ -63,6 +66,7 @@ class App{
         let json = JSON.parse( text);
         this.desk = this.loader.parse( json.object );
         this.scene.add(this.desk);
+        this.desk.
         this.desk.position.setFromMatrixPosition( this.reticle.matrix );
         // this.objectNumber = this.scene.children.length - 1;
         // this.scene.add( json.scene );
