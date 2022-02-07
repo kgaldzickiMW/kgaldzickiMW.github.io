@@ -47,6 +47,17 @@ class App{
         this.scene.add( this.reticle );
         
 
+        // TEXTURE
+        this.textureLoader = new THREE.TextureLoader();
+        this.textures = [];
+        this.materialNb = 0;
+
+        for (var i = 1; i < 30; i++) {
+            this.textures.push(this.textureLoader.load( 'textures/' + i + '.jpg' ));
+        }
+
+        // this.dekorLegno = this.textureLoader.load( 'textures/legno_jasne_r_48026.jpg' );
+
         // OTHER
         this.controls = new OrbitControls( this.camera, this.renderer.domElement );
         this.controls.target.set(0, 3.5, 0);
@@ -64,6 +75,12 @@ class App{
         this.desk = this.loader.parse( json.object );
         this.scene.add(this.desk);
         this.desk.position.setFromMatrixPosition( this.reticle.matrix );
+        // console.log('dekor');
+        // console.log(this.dekorLegno);
+        // this.desk.children[0].material.map = this.dekorLegno;
+        // this.desk.children[1].material.map = this.dekorLegno;
+        // this.desk.children[2].material.map = this.dekorLegno;
+        // this.desk.children[3].material.map = this.dekorLegno;
         // this.objectNumber = this.scene.children.length - 1;
         // this.scene.add( json.scene );
         // this.scene.children[0].position.set(0, -1, -0.5);
@@ -126,15 +143,23 @@ class App{
             // console.log('test3');
             // console.log(this.desk);
             if (this.desk) {
-                // console.log('test4');
                 this.desk.position.setFromMatrixPosition( this.reticle.matrix );
-                } else {
-                    // console.log('test5');
-                    this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
-                    // this.desk.position.setFromMatrixPosition( this.reticle.matrix );
+                // Update material Texture
+                for (var i = 0; i < 3; i++) {
+                    this.desk.children[i].material.map = this.textures[this.materialNb];
                 }
-                // this.desk.positionChange.set(0, -1, -1.5).applyMatrix4( this.controller.matrixWorld );
+                console.log(this.textures[this.materialNb]);
+                // this.desk.children[0].material.map = this.textures[this.materialNb];
+                if (this.materialNb < 28) {
+                    this.materialNb += 1;
+                } else {
+                    this.materialNb = 0;
+                }
+            } else {
+                this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
             }
+                // this.desk.positionChange.set(0, -1, -1.5).applyMatrix4( this.controller.matrixWorld );
+        }
 
 
         // self.scene.add(mesh);
