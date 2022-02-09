@@ -1,15 +1,24 @@
+.widthContainer {
+    padding: 5px;
+}
+
+/* Style the images inside the grid */
+.widthContainer p {
+    padding: 5px;
+}
+
 /* The grid: Four equal columns that floats next to each other */
 .color {
   float: left;
-  width: 15%;
-  padding: 10px;
+  min-width: 50px;
+  width: 5%;
+  padding: 5px;
 }
 
 /* Style the images inside the grid */
 .color img {
   opacity: 0.8;
-  width: auto;
-  max-width: max-content;
+  width: 100%;
   cursor: pointer;
 }
 
@@ -27,7 +36,7 @@
 /* The expanding image container (positioning is needed to position the close button and the text) */
 .colorContainer {
   position: relative;
-  display: flex;
+  display: block;
 }
 
 /* Expanding image text */

@@ -70,6 +70,7 @@ class App{
         }
     
         window.addEventListener('resize', this.resize.bind(this) );
+        this.createColorElements();
 	}	
     
     addObjectFromJson ( text ) {
@@ -143,14 +144,14 @@ class App{
                 this.desk.visible = true;
                 this.desk.position.setFromMatrixPosition( this.reticle.matrix );
                 // Update material Texture
-                for (var i = 0; i < 4; i++) {
-                    this.desk.children[i].material.map = this.textures[this.materialNb];
-                }
-                if (this.materialNb < 28) {
-                    this.materialNb += 1;
-                } else {
-                    this.materialNb = 0;
-                }
+                // for (var i = 0; i < 4; i++) {
+                //     this.desk.children[i].material.map = this.textures[this.materialNb];
+                // }
+                // if (this.materialNb < 28) {
+                //     this.materialNb += 1;
+                // } else {
+                //     this.materialNb = 0;
+                // }
             } else {
                 console.log('desk')
                 // this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
@@ -367,6 +368,30 @@ class App{
 
     updateWidth( sliderValue ) {
         this.setWidth(this.desk, sliderValue/100);
+    }
+
+    // CREATING COLOR ELEMENTS, CHANGING COLORS
+
+    createColorElements() {
+        for (var i = 1; i < 30; i++) {
+            console.log(i);
+            // tworzy nowy element div
+            // i daje jego zawartość
+            var newColorDiv = document.createElement("div");
+            newColorDiv.classList.add('color');
+            newColorDiv.innerHTML = "<img src='textures/" + i + ".jpg' alt='" + i + "' onclick='myFunction(this);'>";
+
+            // add the newly created element and it's content into the DOM
+            document.getElementById("colorContainer").appendChild(newColorDiv);
+            // document.body.insertBefore(newDiv, my_div).appendChild(newColorDiv);
+            // console.log();
+        }
+    }
+
+    changeColor(colorId) {
+        for (var i = 0; i < 4; i++) {
+            this.desk.children[i].material.map = this.textures[colorId];
+        }
     }
 
 }

@@ -29,29 +29,18 @@
             <p>Szerokość: <span id="widthNumber"></span></p>
         </div>
 
-        <div class="colorContainer">
-            <div class="color">
-                <img src="textures/1.jpg" alt="1" onclick="myFunction(this);">
-            </div>
-            <div class="color">
-                <img src="textures/2.jpg" alt="2" onclick="myFunction(this);">
-            </div>
-            <div class="color">
-                <img src="textures/3.jpg" alt="3" onclick="myFunction(this);">
-            </div>
-            <div class="color">
-                <img src="textures/4.jpg" alt="4" onclick="myFunction(this);">
-            </div>
+        <div class="colorContainer" id="colorContainer">
         </div>
 
-          
+        
+
         <script type="module">
             import { App } from './app.js';
 
             document.addEventListener("DOMContentLoaded", function(){
                 const app = new App();
                 window.app = app;
-            });
+            })
 
             // window.addEventListener( 'click', function () {
 
@@ -67,6 +56,18 @@
                 output.innerHTML = this.value;
                 app.updateWidth(this.value);
             }
+
+            // function myFunction(object) {
+            //     console.log(this);
+            // }
         </script>
+
+        <script>
+            function myFunction(object) {
+                console.log(object.alt);
+                app.changeColor(object.alt);
+            }
+        </script>
+
 	</body>
 </html>
