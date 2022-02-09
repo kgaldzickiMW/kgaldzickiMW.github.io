@@ -1,7 +1,7 @@
 /* The grid: Four equal columns that floats next to each other */
 .color {
   float: left;
-  width: 25%;
+  width: 15%;
   padding: 10px;
 }
 
@@ -9,7 +9,7 @@
 .color img {
   opacity: 0.8;
   width: auto;
-  max-width: 100px;
+  max-width: max-content;
   cursor: pointer;
 }
 
@@ -27,7 +27,7 @@
 /* The expanding image container (positioning is needed to position the close button and the text) */
 .colorContainer {
   position: relative;
-  /* display: none; */
+  display: flex;
 }
 
 /* Expanding image text */
