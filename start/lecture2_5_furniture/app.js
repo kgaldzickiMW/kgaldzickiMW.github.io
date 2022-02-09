@@ -15,7 +15,7 @@ class App{
         
         // CAMERA
 		this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
-		this.camera.position.set( 0, 1.6, 0 );
+		this.camera.position.set( 0, 1, 2 );
         
         // SCENE
 		this.scene = new THREE.Scene();
@@ -60,34 +60,31 @@ class App{
 
         // OTHER
         this.controls = new OrbitControls( this.camera, this.renderer.domElement );
-        this.controls.target.set(0, 3.5, 0);
+        this.controls.target.set(0, 0, 0);
         this.controls.update();
         
 
         this.setupXR();
+        if (!this.desk) {
+            this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
+        }
     
         window.addEventListener('resize', this.resize.bind(this) );
 	}	
     
     addObjectFromJson ( text ) {
-        console.log('test');
         let json = JSON.parse( text);
         this.desk = this.loader.parse( json.object );
         this.scene.add(this.desk);
-        this.desk.position.setFromMatrixPosition( this.reticle.matrix );
-        // console.log('dekor');
-        // console.log(this.dekorLegno);
-        // this.desk.children[0].material.map = this.dekorLegno;
-        // this.desk.children[1].material.map = this.dekorLegno;
-        // this.desk.children[2].material.map = this.dekorLegno;
-        // this.desk.children[3].material.map = this.dekorLegno;
-        // this.objectNumber = this.scene.children.length - 1;
-        // this.scene.add( json.scene );
-        // this.scene.children[0].position.set(0, -1, -0.5);
+        this.scene.background = new THREE.Color( 0xdddddd );
+        this.desk.position.set( 0, 0, 0 );
         if (this.desk) {
+            // console.log('addObjectFromJson');
             this.originalWrapBox = new THREE.Box3().setFromObject( this.desk );
             this.originalObjectDimm = this.originalWrapBox.max.subVectors(this.originalWrapBox.max, this.originalWrapBox.min);
         }
+        // this.setupXR.bind(this);
+        const btn = new ARButton( this.renderer, this);
     }
 
     
@@ -114,7 +111,7 @@ class App{
 
         
 
-        const btn = new ARButton( this.renderer );
+        // const btn = new ARButton( this.renderer);
 
         this.controller = this.renderer.xr.getController(0);
         this.controller.addEventListener( 'select', this.onSelect.bind(this) );
@@ -143,20 +140,20 @@ class App{
             // console.log('test3');
             // console.log(this.desk);
             if (this.desk) {
+                this.desk.visible = true;
                 this.desk.position.setFromMatrixPosition( this.reticle.matrix );
                 // Update material Texture
-                for (var i = 0; i < 3; i++) {
+                for (var i = 0; i < 4; i++) {
                     this.desk.children[i].material.map = this.textures[this.materialNb];
                 }
-                console.log(this.textures[this.materialNb]);
-                // this.desk.children[0].material.map = this.textures[this.materialNb];
                 if (this.materialNb < 28) {
                     this.materialNb += 1;
                 } else {
                     this.materialNb = 0;
                 }
             } else {
-                this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
+                console.log('desk')
+                // this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
             }
                 // this.desk.positionChange.set(0, -1, -1.5).applyMatrix4( this.controller.matrixWorld );
         }
@@ -318,13 +315,13 @@ class App{
 
     // RESIZE FUNCTIONS --------------------------------------------------------------------------------------------------------------
 
-    setSize( Mesh, xSize, ySize=Mesh.geometry.parameters.height, zSize=Mesh.geometry.parameters.depth) {
-        let scaleFactorX, scaleFactorY, scaleFactorZ;
-        scaleFactorX = xSize / Mesh.geometry.parameters.width;
-        scaleFactorY = ySize / Mesh.geometry.parameters.height;
-        scaleFactorZ = zSize / Mesh.geometry.parameters.depth;
-        Mesh.scale.set( scaleFactorX, scaleFactorY, scaleFactorZ );
-    }
+    // setSize( Mesh, xSize, ySize=Mesh.geometry.parameters.height, zSize=Mesh.geometry.parameters.depth) {
+    //     let scaleFactorX, scaleFactorY, scaleFactorZ;
+    //     scaleFactorX = xSize / Mesh.geometry.parameters.width;
+    //     scaleFactorY = ySize / Mesh.geometry.parameters.height;
+    //     scaleFactorZ = zSize / Mesh.geometry.parameters.depth;
+    //     Mesh.scale.set( scaleFactorX, scaleFactorY, scaleFactorZ );
+    // }
 
 
     setWidth( object, xSize) {
@@ -340,7 +337,7 @@ class App{
         
         if (widthChange.toFixed(2) != 0) {
             let positionChange = widthChange/2;
-            console.log(positionChange);
+            // console.log(positionChange);
 
             for (let mesh of object.children) {
                 // Scale
@@ -369,7 +366,7 @@ class App{
     }
 
     updateWidth( sliderValue ) {
-        this.setWidth(this.scene.children[0], sliderValue/100);
+        this.setWidth(this.desk, sliderValue/100);
     }
 
 }

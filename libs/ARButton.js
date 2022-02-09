@@ -6,9 +6,20 @@
 
 class ARButton{
 
-	constructor( renderer, options ) {
+	constructor( renderer, app, options ) {
         this.renderer = renderer;
         
+        this.app = app;
+        // ASSIGN DEFAULT CAMERA VALUES
+        this.defaultPosition = Object.assign({}, app.camera.position);
+        this.defaultQuaternion = Object.assign({}, app.camera.quaternion);
+        this.defaultRotation = Object.assign({}, app.camera.rotation);
+        this.defaultScale = Object.assign({}, app.camera.scale);
+        this.defaultSceneBackground = app.scene.background.clone();
+        console.log(this.defaultSceneBackground);
+        
+        this.desk = this.app.desk;
+
         if (options !== undefined){
             this.onSessionStart = options.onSessionStart;
             this.onSessionEnd = options.onSessionEnd;
@@ -102,6 +113,8 @@ class ARButton{
         button.style.width = '80px';
         button.style.cursor = 'pointer';
         button.innerHTML = '<i class="fas fa-camera"></i>';
+        button.style.fontSize = '12px'; 
+        button.textContent = (currentSession===null) ? 'START AR' : 'STOP AR';
         
 
         button.onmouseenter = function () {
@@ -131,6 +144,8 @@ class ARButton{
                 // ('local' is always available for immersive sessions and doesn't need to
                 // be requested separately.)
 
+                self.desk.visible = false;
+                self.app.scene.background = null;
                 self.sessionInit = { requiredFeatures: ['hit-test']};
                 
                 navigator.xr.requestSession( 'immersive-ar', self.sessionInit ).then( onSessionStarted );
@@ -139,6 +154,14 @@ class ARButton{
 
                 currentSession.end();
 
+                // RESTORE DEFAULT VALUES 
+                self.desk.visible = true;
+                self.desk.position.set( 0, 0, 0 );
+                self.app.camera.position.copy(self.defaultPosition);
+                self.app.camera.quaternion.copy(self.defaultQuaternion);
+                self.app.camera.rotation.copy(self.defaultRotation);
+                self.app.camera.scale.copy(self.defaultScale);
+                self.app.scene.background = self.defaultSceneBackground;
             }
 
         };

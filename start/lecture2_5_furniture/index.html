@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <!--favicon -->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="style.css">
         <link rel="apple-touch-icon" sizes="180x180" href="../../css/favicon/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="../../css/favicon/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="../../css/favicon/favicon-16x16.png">
@@ -22,10 +23,27 @@
         </style>
 	</head>
 	<body>
-        <div class="slidecontainer">
-            <input type="range" min="60" max="200" value="100" class="slider" id="myRange">
-            <p>Szerokość: <span id="demo"></span></p>
-          </div>
+
+        <div class="widthContainer">
+            <input type="range" min="60" max="200" value="100" class="slider" id="width">
+            <p>Szerokość: <span id="widthNumber"></span></p>
+        </div>
+
+        <div class="colorContainer">
+            <div class="color">
+                <img src="textures/1.jpg" alt="1" onclick="myFunction(this);">
+            </div>
+            <div class="color">
+                <img src="textures/2.jpg" alt="2" onclick="myFunction(this);">
+            </div>
+            <div class="color">
+                <img src="textures/3.jpg" alt="3" onclick="myFunction(this);">
+            </div>
+            <div class="color">
+                <img src="textures/4.jpg" alt="4" onclick="myFunction(this);">
+            </div>
+        </div>
+
           
         <script type="module">
             import { App } from './app.js';
@@ -41,8 +59,8 @@
 
             // });
 
-            var slider = document.getElementById("myRange");
-            var output = document.getElementById("demo");
+            var slider = document.getElementById("width");
+            var output = document.getElementById("widthNumber");
             output.innerHTML = slider.value;
 
             slider.oninput = function() {
