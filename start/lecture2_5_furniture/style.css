@@ -10,9 +10,9 @@
 /* The grid: Four equal columns that floats next to each other */
 .color {
   float: left;
-  min-width: 50px;
-  width: 5%;
-  padding: 5px;
+  min-width: 30px;
+  width: 4%;
+  padding: 2px;
 }
 
 /* Style the images inside the grid */
