@@ -374,12 +374,12 @@ class App{
 
     createColorElements() {
         for (var i = 1; i < 30; i++) {
-            console.log(i);
+            // console.log(i);
             // tworzy nowy element div
             // i daje jego zawartość
             var newColorDiv = document.createElement("div");
             newColorDiv.classList.add('color');
-            newColorDiv.innerHTML = "<img src='textures/" + i + ".jpg' alt='" + i + "' onclick='myFunction(this);'>";
+            newColorDiv.innerHTML = "<img src='textures/" + i + ".jpg' alt='" + (i-1) + "' onclick='myFunction(this);'>";
 
             // add the newly created element and it's content into the DOM
             document.getElementById("colorContainer").appendChild(newColorDiv);
