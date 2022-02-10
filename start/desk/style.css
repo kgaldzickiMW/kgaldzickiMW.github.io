@@ -58,7 +58,7 @@ body {
 /* The expanding image container (positioning is needed to position the close button and the text) */
 .colorContainer {
   position: relative;
-  display: block;
+  display: inline-block;
 }
 
 /* Expanding image text */

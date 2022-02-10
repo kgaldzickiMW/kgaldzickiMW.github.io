@@ -101,6 +101,15 @@ class ARButton{
             button.textContent = 'START AR';
 
             currentSession = null;
+
+            self.desk.visible = true;
+            self.desk.position.set( 0, 0, 0 );
+            self.app.camera.position.copy(self.defaultPosition);
+            self.app.camera.quaternion.copy(self.defaultQuaternion);
+            self.app.camera.rotation.copy(self.defaultRotation);
+            self.app.camera.scale.copy(self.defaultScale);
+            self.app.scene.background = self.defaultSceneBackground;
+            self.app.reticle.visible = false;
             
             if (self.onSessionEnd !== undefined && self.onSessionEnd !== null) self.onSessionEnd();
 
@@ -155,13 +164,13 @@ class ARButton{
                 currentSession.end();
 
                 // RESTORE DEFAULT VALUES 
-                self.desk.visible = true;
-                self.desk.position.set( 0, 0, 0 );
-                self.app.camera.position.copy(self.defaultPosition);
-                self.app.camera.quaternion.copy(self.defaultQuaternion);
-                self.app.camera.rotation.copy(self.defaultRotation);
-                self.app.camera.scale.copy(self.defaultScale);
-                self.app.scene.background = self.defaultSceneBackground;
+                // self.desk.visible = true;
+                // self.desk.position.set( 0, 0, 0 );
+                // self.app.camera.position.copy(self.defaultPosition);
+                // self.app.camera.quaternion.copy(self.defaultQuaternion);
+                // self.app.camera.rotation.copy(self.defaultRotation);
+                // self.app.camera.scale.copy(self.defaultScale);
+                // self.app.scene.background = self.defaultSceneBackground;
             }
 
         };

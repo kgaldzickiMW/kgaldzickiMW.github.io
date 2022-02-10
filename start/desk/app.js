@@ -14,7 +14,7 @@ class App{
         this.loader = new THREE.ObjectLoader();
         
         // CAMERA
-		this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+		this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / (window.innerHeight - document.getElementsByClassName("optionContainer")[0].clientHeight - document.getElementsByClassName("colorContainer")[0].clientHeight), 0.1, 100 );
 		this.camera.position.set( 0, 1, 2 );
         
         // SCENE
@@ -29,7 +29,7 @@ class App{
         // RENDERER
 		this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true } );
 		this.renderer.setPixelRatio( window.devicePixelRatio );
-		this.renderer.setSize( window.innerWidth, window.innerHeight );
+		this.renderer.setSize( window.innerWidth, window.innerHeight - document.getElementsByClassName("optionContainer")[0].clientHeight - document.getElementsByClassName("colorContainer")[0].clientHeight);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
 		container.appendChild( this.renderer.domElement );
 
@@ -125,9 +125,9 @@ class App{
     }
 
     resize(){
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.aspect = window.innerWidth / (window.innerHeight - document.getElementsByClassName("optionContainer")[0].clientHeight - document.getElementsByClassName("colorContainer")[0].clientHeight);
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );  
+        this.renderer.setSize( window.innerWidth, window.innerHeight - document.getElementsByClassName("optionContainer")[0].clientHeight - document.getElementsByClassName("colorContainer")[0].clientHeight);  
     }
 
 
@@ -138,7 +138,7 @@ class App{
         // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
         // console.log(this);
         // this.desk = this.scene.children[0]
-        this.initAR.bind(this);
+        // this.initAR.bind(this);
         // console.log(this);
         if (this.reticle.visible){ 
             // console.log('test3');
@@ -225,36 +225,36 @@ class App{
 	// 	);
 	// }			
     
-    initAR(){
-        //TO DO 2: Start an AR session
-        let currentSession = null;
-        const self = this;
+    // initAR(){
+    //     //TO DO 2: Start an AR session
+    //     let currentSession = null;
+    //     const self = this;
 
-        const sessionInit = { requiredFeatures: ['hit-test']};
+    //     const sessionInit = { requiredFeatures: ['hit-test']};
 
-        function onSessionStarted( session ){
-            session.addEventListener( 'end', onSessionEnded );
+    //     function onSessionStarted( session ){
+    //         session.addEventListener( 'end', onSessionEnded );
 
-            self.renderer.xr.setReferenceSpaceType( 'local' );
-            self.renderer.xr.setSession( session );
+    //         self.renderer.xr.setReferenceSpaceType( 'local' );
+    //         self.renderer.xr.setSession( session );
 
-            currentSession = session;
-        }
+    //         currentSession = session;
+    //     }
 
-        function onSessionEnded() {
-            currentSession.removeEventListener( 'end', onSessionEnded );
-            currentSession = null;
+    //     function onSessionEnded() {
+    //         currentSession.removeEventListener( 'end', onSessionEnded );
+    //         currentSession = null;
 
-            if (self.desk !== null) {
-                self.scene.remove( self.desk );
-                self.desk = null;
-            }
+    //         if (self.desk !== null) {
+    //             self.scene.remove( self.desk );
+    //             self.desk = null;
+    //         }
 
-            self.renderer.setAnimationLoop( null );
-        }
+    //         self.renderer.setAnimationLoop( null );
+    //     }
 
-        navigator.xr.requestSession( 'immersive-ar', sessionInit ).then(onSessionStarted)
-    }
+    //     navigator.xr.requestSession( 'immersive-ar', sessionInit ).then(onSessionStarted)
+    // }
     
     requestHitTestSource(){
         const self = this;
