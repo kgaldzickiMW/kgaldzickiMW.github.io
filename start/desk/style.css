@@ -1,10 +1,31 @@
+body {
+  background-color: #3b3b3b;
+}
+
+.optionContainer {
+  padding: 5px;
+  display: flex;
+  color: white;
+}
+
 .widthContainer {
     padding: 5px;
+    float: left;
 }
 
 /* Style the images inside the grid */
 .widthContainer p {
     padding: 5px;
+}
+
+.priceContainer {
+  padding: 5px;
+  float: left;
+}
+
+/* Style the images inside the grid */
+.priceContainer p {
+  padding: 5px;
 }
 
 /* The grid: Four equal columns that floats next to each other */
@@ -17,9 +38,10 @@
 
 /* Style the images inside the grid */
 .color img {
-  opacity: 0.8;
+  opacity: 1;
   width: 100%;
   cursor: pointer;
+  border: 1px solid rgb(255, 255, 255);
 }
 
 .color img:hover {

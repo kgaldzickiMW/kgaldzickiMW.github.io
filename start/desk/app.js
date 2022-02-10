@@ -86,6 +86,9 @@ class App{
         }
         // this.setupXR.bind(this);
         const btn = new ARButton( this.renderer, this);
+
+        this.updateArea( this.desk);
+        this.updatePrice( this.desk);
     }
 
     
@@ -343,8 +346,8 @@ class App{
             for (let mesh of object.children) {
                 // Scale
                 if (mesh.geometry.parameters.width > maxBoardThickness) {
-                    let meshNewXSize = mesh.geometry.parameters.width + widthChangeFromOrig;
-                    let scaleFactorX = meshNewXSize / mesh.geometry.parameters.width;
+                    mesh.geometry.meshNewXSize = mesh.geometry.parameters.width + widthChangeFromOrig;
+                    let scaleFactorX = mesh.geometry.meshNewXSize / mesh.geometry.parameters.width;
                     mesh.scale.x = scaleFactorX;
                 // Position
                 } else {
@@ -368,7 +371,46 @@ class App{
 
     updateWidth( sliderValue ) {
         this.setWidth(this.desk, sliderValue/100);
+        this.updateArea( this.desk);
+        this.updatePrice( this.desk);
     }
+
+    updateArea( object ) {
+        object.area = 0;
+        let maxBoardThickness = 0.06;
+        for (let element of object.children) {
+            element.dimensions = [];
+            element.area = 0;
+            let width = element.geometry.parameters.width;
+            let height = element.geometry.parameters.height;
+            let depth = element.geometry.parameters.depth;
+            if (width > maxBoardThickness) {
+                element.dimensions.push(width * element.scale.x);
+                // console.log('width ' + element.area);
+            }
+            if (height > maxBoardThickness) {
+                element.dimensions.push(height * element.scale.y);
+                // console.log('height ' + element.area);
+            }
+            if (depth > maxBoardThickness) {
+                element.dimensions.push(depth * element.scale.z);
+                // console.log('depth ' + element.area);
+            }
+            element.area = element.dimensions[0] * element.dimensions[1];
+            object.area += element.area;
+            // console.log(element.area);
+        }
+        // console.log(object.area.toFixed(2));
+        // console.log(this.desk.children[0].geometry.meshNewXSize)
+    }
+
+    updatePrice( object ) {
+        let price = (object.area * 1.1 * 25 + object.area * 15) * 2.9;
+        console.log(object.area);
+        var priceElement = document.getElementById("price");
+        priceElement.innerHTML = price.toFixed(2);
+    }
+
 
     // CREATING COLOR ELEMENTS, CHANGING COLORS
 
