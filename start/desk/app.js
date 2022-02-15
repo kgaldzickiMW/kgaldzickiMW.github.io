@@ -78,6 +78,17 @@ class App{
         this.desk = this.loader.parse( json.object );
         this.scene.add(this.desk);
         this.scene.background = new THREE.Color( 0xdddddd );
+
+        // Add Additional features to Desk
+        this.defineElementDim(this.desk);
+        for (let element of this.desk.children) {
+            if (element.name === 'Blat') {
+                this.addEdgeTypesToElement(element, 's20', 's20', 's20', 's20');
+            } else {
+                this.addEdgeTypesToElement(element);
+            }
+        }
+
         this.desk.position.set( 0, 0, 0 );
         if (this.desk) {
             // console.log('addObjectFromJson');
@@ -88,7 +99,45 @@ class App{
         const btn = new ARButton( this.renderer, this);
 
         this.updateArea( this.desk);
-        this.updatePrice( this.desk);
+        this.updateEdgeLength( this.desk);
+        this.updatePrice( this.desk, 
+                        { 's6' : 0.5,
+                          's20' : 1.5});
+    }
+
+    // Problem może się pojawić jak formatka będzię niższa, lub krótsza niż dłuższa
+    defineElementDim ( object ) {
+        for (let element of object.children) {
+            let oldDim = {};
+            oldDim.x = element.geometry.parameters.width;
+            oldDim.y = element.geometry.parameters.height;
+            oldDim.z = element.geometry.parameters.depth;
+
+            // sort items by value
+            var sortDimArray = [];
+            for (var dim in oldDim) {
+                sortDimArray.push([dim, oldDim[dim]]);
+            }
+            sortDimArray.sort(function(a, b) {
+                return b[1] - a[1];
+            });
+
+            element.dimensionsDefault = {};
+            element.dimensionsDefault.width = sortDimArray[0];
+            element.dimensionsDefault.height = sortDimArray[1];
+            element.dimensionsDefault.thickness = sortDimArray[2];
+        }
+
+    }
+
+    addEdgeTypesToElement ( element, widthBottom = 's6',  widthTop ='s6', heightLeft ='s6', heightRight ='s6') {
+        element.edgeTypes = {};
+        element.edgeTypes.width = {};
+        element.edgeTypes.height = {};
+        element.edgeTypes.width.bottom = widthBottom;
+        element.edgeTypes.width.top = widthTop;
+        element.edgeTypes.height.left = heightLeft;
+        element.edgeTypes.height.right = heightRight;
     }
 
     
@@ -372,43 +421,76 @@ class App{
     updateWidth( sliderValue ) {
         this.setWidth(this.desk, sliderValue/100);
         this.updateArea( this.desk);
-        this.updatePrice( this.desk);
+        this.updateEdgeLength( this.desk);
+        this.updatePrice( this.desk, 
+                        { 's6' : 0.5,
+                          's20' : 1.5});
     }
 
     updateArea( object ) {
         object.area = 0;
         let maxBoardThickness = 0.06;
         for (let element of object.children) {
-            element.dimensions = [];
+            element.dimensions = {};
             element.area = 0;
-            let width = element.geometry.parameters.width;
-            let height = element.geometry.parameters.height;
-            let depth = element.geometry.parameters.depth;
-            if (width > maxBoardThickness) {
-                element.dimensions.push(width * element.scale.x);
-                // console.log('width ' + element.area);
-            }
-            if (height > maxBoardThickness) {
-                element.dimensions.push(height * element.scale.y);
-                // console.log('height ' + element.area);
-            }
-            if (depth > maxBoardThickness) {
-                element.dimensions.push(depth * element.scale.z);
-                // console.log('depth ' + element.area);
-            }
-            element.area = element.dimensions[0] * element.dimensions[1];
+            let width = element.dimensionsDefault.width[1];
+            let height = element.dimensionsDefault.height[1];
+            let thickness = element.dimensionsDefault.thickness[1];
+            element.dimensions.width = [element.dimensionsDefault.width[0], Number((width * element.scale[element.dimensionsDefault.width[0]]).toFixed(2))];
+            element.dimensions.height = [element.dimensionsDefault.height[0], Number((height * element.scale[element.dimensionsDefault.height[0]]).toFixed(2))];
+            element.dimensions.thickness = [element.dimensionsDefault.thickness[0], Number((thickness * element.scale[element.dimensionsDefault.thickness[0]]).toFixed(2))];
+            element.area = element.dimensions.width[1] * element.dimensions.height[1];
             object.area += element.area;
-            // console.log(element.area);
         }
-        // console.log(object.area.toFixed(2));
-        // console.log(this.desk.children[0].geometry.meshNewXSize)
     }
 
-    updatePrice( object ) {
-        let price = (object.area * 1.1 * 25 + object.area * 15) * 2.9;
-        console.log(object.area);
+    updateEdgeLength( object ) {
+        object.edges = {};
+        for (let element of object.children) {
+            // Height
+            for (let side in element.edgeTypes.height) {
+                let edgeType = element.edgeTypes.height[side];
+                if (Object.keys(object.edges).includes(edgeType)) {
+                    object.edges[edgeType] += parseFloat(element.dimensions.height[1].toFixed(2));
+                    object.edges[edgeType] = parseFloat(object.edges[edgeType].toFixed(2));
+                } else {
+                    object.edges[edgeType] = 0;
+                    object.edges[edgeType] = parseFloat(element.dimensions.height[1].toFixed(2));
+                }
+            }
+            // Width
+            for (let side in element.edgeTypes.width) {
+                let edgeType = element.edgeTypes.width[side];
+                if (Object.keys(object.edges).includes(edgeType)) {
+                    object.edges[edgeType] += parseFloat(element.dimensions.width[1].toFixed(2));
+                    object.edges[edgeType] = parseFloat(object.edges[edgeType].toFixed(2));
+                } else {
+                    object.edges[edgeType] = 0;
+                    object.edges[edgeType] = parseFloat(element.dimensions.width[1].toFixed(2));
+                }
+            }
+        }
+    }
+
+    updatePrice( object, edgePrices ) {
+        let price = (object.area * 1.1 * 25 + object.area * 15 + this.countEdgePrices( object, edgePrices )) * 2.9;
         var priceElement = document.getElementById("price");
         priceElement.innerHTML = price.toFixed(2);
+    }
+
+
+    countEdgePrices( object, edgePrices ) {
+        let amount = 0;
+        for (let edgeType in object.edges) {
+            if (Object.keys(edgePrices).includes(edgeType)) {
+                amount += edgePrices[edgeType] * object.edges[edgeType];
+            } else {
+                alert('Error - price for Edge Type' + edgeType + ' not provided by the system');
+            }
+        }
+        amount = parseFloat(amount.toFixed(2));
+        console.log(amount);
+        return amount;
     }
 
 
