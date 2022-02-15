@@ -100,9 +100,12 @@ class App{
 
         this.updateArea( this.desk);
         this.updateEdgeLength( this.desk);
+        this.addComponents( this.desk, 
+                        { 'stopki-0.5' : 4 });
         this.updatePrice( this.desk, 
                         { 's6' : 0.5,
-                          's20' : 1.5});
+                            's20' : 1.5 },
+                        { 'stopki-0.5' : 0.5 });
     }
 
     // Problem może się pojawić jak formatka będzię niższa, lub krótsza niż dłuższa
@@ -424,7 +427,8 @@ class App{
         this.updateEdgeLength( this.desk);
         this.updatePrice( this.desk, 
                         { 's6' : 0.5,
-                          's20' : 1.5});
+                          's20' : 1.5 },
+                        { 'stopki-0.5' : 0.5 });
     }
 
     updateArea( object ) {
@@ -472,8 +476,8 @@ class App{
         }
     }
 
-    updatePrice( object, edgePrices ) {
-        let price = (object.area * 1.1 * 25 + object.area * 15 + this.countEdgePrices( object, edgePrices )) * 2.9;
+    updatePrice( object, edgePrices, componentPrices ) {
+        let price = (object.area * 1.1 * 25 + object.area * 15 + this.countEdgePrices( object, edgePrices ) + this.countComponentCosts( object, componentPrices )) * 2.9;
         var priceElement = document.getElementById("price");
         priceElement.innerHTML = price.toFixed(2);
     }
@@ -489,7 +493,28 @@ class App{
             }
         }
         amount = parseFloat(amount.toFixed(2));
-        console.log(amount);
+        return amount;
+    }
+
+
+    addComponents ( object, componentToAdd ) {
+        object.components = {};
+        for (let component in componentToAdd) {
+            object.components[component] = componentToAdd[component];
+        }
+    }
+
+
+    countComponentCosts( object, componentPrices ) {
+        let amount = 0;
+        for (let compType in object.components) {
+            if (Object.keys(componentPrices).includes(compType)) {
+                amount += componentPrices[compType] * object.components[compType];
+            } else {
+                alert('Error - price for Edge Type' + compType + ' not provided by the system');
+            }
+        }
+        amount = parseFloat(amount.toFixed(2));
         return amount;
     }
 
