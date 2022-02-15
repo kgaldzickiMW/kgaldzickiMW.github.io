@@ -25,8 +25,8 @@
 	<body>
         <div class="optionContainer">
             <div class="widthContainer">
-                <input type="range" min="60" max="200" value="160" class="slider" id="width">
-                <p>Width: <span id="widthNumber"></span></p>
+                <input type="range" min="60" max="200" value="160"  step='5' class="slider" id="width">
+                <p>Width: <input type="number" id="widthNumber" name="widthNumber" min="60" max="200" value="160"></p>
             </div>
     
             <div class="priceContainer" id="priceContainer">
@@ -55,10 +55,15 @@
 
             var slider = document.getElementById("width");
             var output = document.getElementById("widthNumber");
-            output.innerHTML = slider.value;
+            output.value = slider.value;
 
             slider.oninput = function() {
-                output.innerHTML = this.value;
+                output.value = this.value;
+                app.updateWidth(this.value);
+            }
+
+            output.onchange = function() {
+                slider.value = this.value;
                 app.updateWidth(this.value);
             }
 
