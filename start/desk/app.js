@@ -100,6 +100,9 @@ class App{
 
         this.updateArea( this.desk);
         this.updateEdgeLength( this.desk);
+        this.applyEdgeOverhead( this.desk,
+                                        { 's6' : 1.2,
+                                        's20' : 1.2 });
         this.addComponents( this.desk, 
                         { 'stopki-0.5' : 4 });
         this.updatePrice( this.desk, 
@@ -425,10 +428,13 @@ class App{
         this.setWidth(this.desk, sliderValue/100);
         this.updateArea( this.desk);
         this.updateEdgeLength( this.desk);
+        this.applyEdgeOverhead( this.desk,
+                                        { 's6' : 1.2,
+                                        's20' : 1.2 });
         this.updatePrice( this.desk, 
-                        { 's6' : 0.5,
-                          's20' : 1.5 },
-                        { 'stopki-0.5' : 0.5 });
+                                    { 's6' : 0.5,
+                                    's20' : 1.5 },
+                                    { 'stopki-0.5' : 0.5 });
     }
 
     updateArea( object ) {
@@ -476,8 +482,21 @@ class App{
         }
     }
 
+
+    applyEdgeOverhead( object, overheads = {} ) {
+        if (overheads) {
+            // let amount = 0;
+            for (let edgeType in object.edges) {
+                if (Object.keys(overheads).includes(edgeType)) {
+                    object.edges[edgeType] = overheads[edgeType] * object.edges[edgeType];
+                    object.edges[edgeType] = parseFloat(object.edges[edgeType].toFixed(2));
+                }
+            }
+        }
+    }
+
     updatePrice( object, edgePrices, componentPrices ) {
-        let price = (object.area * 1.1 * 25 + object.area * 15 + this.countEdgePrices( object, edgePrices ) + this.countComponentCosts( object, componentPrices )) * 2.9;
+        let price = (object.area * 1.1 * 25 + object.area * 1.1 * 15 + this.countEdgePrices( object, edgePrices ) + this.countComponentCosts( object, componentPrices )) * 2.9;
         var priceElement = document.getElementById("price");
         priceElement.innerHTML = price.toFixed(2);
     }
