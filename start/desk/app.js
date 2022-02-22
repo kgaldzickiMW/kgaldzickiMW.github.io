@@ -57,13 +57,8 @@ class App{
             this.textures.push(this.textureLoader.load( 'textures/' + i + '.jpg' , function ( texture ) {
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             }));
-            this.texturesRotated.push(this.textureLoader.load( 'textures/' + i + '.jpg' , function ( texture ) {
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                texture.rotation = Math.PI / 2;
-            }));
         }
 
-        // this.dekorLegno = this.textureLoader.load( 'textures/legno_jasne_r_48026.jpg' );
 
         // OTHER
         this.controls = new OrbitControls( this.camera, this.renderer.domElement );
@@ -85,25 +80,7 @@ class App{
         this.desk = this.loader.parse( json.object );
 
         this.updateUV( this.desk );
-        // // MODIFY UV
-        // var uvAttribute = this.desk.children[0].geometry.attributes.uv;
-		
-        // for ( var i = 0; i < uvAttribute.count; i ++ ) {
-             
-        //     if (Math.floor( (i ) / 4) != 2 && Math.floor( (i ) / 4) != 3 ) {
-        //         console.log(i);
-        //         var u = uvAttribute.getX( i );
-        //         var v = uvAttribute.getY( i );
-                        
-        //         // do something with uv
-        //         // u = u * 0.25;
-        //         v = v * 0.03125;
-        //         // write values back to attribute
-        //         // console.log('count');
-        //         uvAttribute.setXY( i, u, v );
-        //     }
-                
-        // }
+        
         this.scene.add(this.desk);
         this.scene.background = new THREE.Color( 0xdddddd );
 
@@ -215,39 +192,12 @@ class App{
 
 
     onSelect() {
-        // const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF * Math.random( )});
-        // const mesh = new THREE.Mesh( self.geometry, material );
-        // mesh.position.set(0, 0, -0.3).applyMatrix4( controller.matrixWorld );
-        // mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-        // console.log(this);
-        // this.desk = this.scene.children[0]
-        // this.initAR.bind(this);
-        // console.log(this);
         if (this.reticle.visible){ 
-            // console.log('test3');
-            // console.log(this.desk);
             if (this.desk) {
                 this.desk.visible = true;
                 this.desk.position.setFromMatrixPosition( this.reticle.matrix );
-                // Update material Texture
-                // for (var i = 0; i < 4; i++) {
-                //     this.desk.children[i].material.map = this.textures[this.materialNb];
-                // }
-                // if (this.materialNb < 28) {
-                //     this.materialNb += 1;
-                // } else {
-                //     this.materialNb = 0;
-                // }
-            } else {
-                console.log('desk')
-                // this.fileLoader.load( 'app.json', this.addObjectFromJson.bind(this));
-            }
-                // this.desk.positionChange.set(0, -1, -1.5).applyMatrix4( this.controller.matrixWorld );
+            } 
         }
-
-
-        // self.scene.add(mesh);
-        // self.meshes.push(mesh);
     }
         
     
@@ -269,75 +219,6 @@ class App{
         } );
     }
     
-	// showChair(id){
-    //     this.initAR();
-        
-	// 	const loader = new GLTFLoader( ).setPath(this.assetsPath);
-    //     const self = this;
-        
-    //     this.loadingBar.visible = true;
-		
-	// 	// Load a glTF resource
-	// 	loader.load(
-	// 		// resource URL
-	// 		`chair${id}.glb`,
-	// 		// called when the resource is loaded
-	// 		function ( gltf ) {
-
-	// 			self.scene.add( gltf.scene );
-    //             self.chair = gltf.scene;
-        
-    //             self.chair.visible = false; 
-                
-    //             self.loadingBar.visible = false;
-                
-    //             self.renderer.setAnimationLoop( self.render.bind(self) );
-	// 		},
-	// 		// called while loading is progressing
-	// 		function ( xhr ) {
-
-	// 			self.loadingBar.progress = (xhr.loaded / xhr.total);
-				
-	// 		},
-	// 		// called when loading has errors
-	// 		function ( error ) {
-
-	// 			console.log( 'An error happened' );
-
-	// 		}
-	// 	);
-	// }			
-    
-    // initAR(){
-    //     //TO DO 2: Start an AR session
-    //     let currentSession = null;
-    //     const self = this;
-
-    //     const sessionInit = { requiredFeatures: ['hit-test']};
-
-    //     function onSessionStarted( session ){
-    //         session.addEventListener( 'end', onSessionEnded );
-
-    //         self.renderer.xr.setReferenceSpaceType( 'local' );
-    //         self.renderer.xr.setSession( session );
-
-    //         currentSession = session;
-    //     }
-
-    //     function onSessionEnded() {
-    //         currentSession.removeEventListener( 'end', onSessionEnded );
-    //         currentSession = null;
-
-    //         if (self.desk !== null) {
-    //             self.scene.remove( self.desk );
-    //             self.desk = null;
-    //         }
-
-    //         self.renderer.setAnimationLoop( null );
-    //     }
-
-    //     navigator.xr.requestSession( 'immersive-ar', sessionInit ).then(onSessionStarted)
-    // }
     
     requestHitTestSource(){
         const self = this;
@@ -402,14 +283,6 @@ class App{
 
     // RESIZE FUNCTIONS --------------------------------------------------------------------------------------------------------------
 
-    // setSize( Mesh, xSize, ySize=Mesh.geometry.parameters.height, zSize=Mesh.geometry.parameters.depth) {
-    //     let scaleFactorX, scaleFactorY, scaleFactorZ;
-    //     scaleFactorX = xSize / Mesh.geometry.parameters.width;
-    //     scaleFactorY = ySize / Mesh.geometry.parameters.height;
-    //     scaleFactorZ = zSize / Mesh.geometry.parameters.depth;
-    //     Mesh.scale.set( scaleFactorX, scaleFactorY, scaleFactorZ );
-    // }
-
 
     setWidth( object, xSize) {
         let maxBoardThickness = 0.06;
@@ -426,23 +299,137 @@ class App{
             let positionChange = widthChange/2;
             // console.log(positionChange);
 
-            for (let mesh of object.children) {
+            for (let element of object.children) {
                 // Scale
-                if (mesh.geometry.parameters.width > maxBoardThickness) {
-                    mesh.geometry.meshNewXSize = mesh.geometry.parameters.width + widthChangeFromOrig;
-                    let scaleFactorX = mesh.geometry.meshNewXSize / mesh.geometry.parameters.width;
-                    mesh.scale.x = scaleFactorX;
+                if (element.geometry.parameters.width > maxBoardThickness) {
+                    element.geometry.elementNewXSize = element.geometry.parameters.width + widthChangeFromOrig;
+                    let scaleFactorX = element.geometry.elementNewXSize / element.geometry.parameters.width;
+                    element.scale.x = scaleFactorX;
                 // Position
                 } else {
-                    if (mesh.position.x > maxBoardThickness/2) {
-                        mesh.position.x += positionChange;
-                    } else if (mesh.position.x < (maxBoardThickness/2 - maxBoardThickness)) {
-                        mesh.position.x -= positionChange;
+                    if (element.position.x > maxBoardThickness/2) {
+                        element.position.x += positionChange;
+                    } else if (element.position.x < (maxBoardThickness/2 - maxBoardThickness)) {
+                        element.position.x -= positionChange;
                     }
                 }
             }
         }
     }
+
+
+    setDepth( object, zSize) {
+        let maxBoardThickness = 0.06;
+
+        // Scale
+        let depthChangeFromOrig = zSize - this.originalObjectDimm.z;
+
+        // Position
+        let box = new THREE.Box3().setFromObject( object );
+        let objectDimm = box.max.subVectors(box.max, box.min);
+        let depthChange = zSize - objectDimm.z;
+        
+        if (depthChange.toFixed(2) != 0) {
+            let positionChange = depthChange / 2;
+            // console.log(positionChange);
+
+            for (let element of object.children) {
+                // Scale
+                if (element.geometry.parameters.depth > maxBoardThickness) {
+                    element.geometry.elementNewZSize = element.geometry.parameters.depth + depthChangeFromOrig;
+                    let scaleFactorZ = element.geometry.elementNewZSize / element.geometry.parameters.depth;
+                    element.scale.z = scaleFactorZ;
+                // Position
+                } else {
+                    if (element.position.z > maxBoardThickness/2) {
+                        element.position.z += positionChange;
+                    } else if (element.position.z < (maxBoardThickness/2 - maxBoardThickness)) {
+                        element.position.z -= positionChange;
+                    }
+                }
+            }
+        }
+    }
+
+
+    setHeight( object, ySize) {
+        let maxBoardThickness = 0.06;
+
+        // Scale
+        let heightChangeFromOrig = ySize - this.originalObjectDimm.y;
+
+        // Position
+        let box = new THREE.Box3().setFromObject( object );
+        let objectDimm = box.max.subVectors(box.max, box.min);
+        let heightChange = ySize - objectDimm.y;
+        
+        if (heightChange.toFixed(2) != 0) {
+            let positionChange = heightChange / 2;
+            // console.log(positionChange);
+
+            for (let element of object.children) {
+                // Scale
+                if (element.geometry.parameters.height > maxBoardThickness) {
+                    element.geometry.elementNewYSize = element.geometry.parameters.height + heightChangeFromOrig;
+                    let scaleFactorY = element.geometry.elementNewYSize / element.geometry.parameters.height;
+                    element.scale.y = scaleFactorY;
+                // Position
+                } else {
+                    if (element.position.y > maxBoardThickness/2) {
+                        element.position.y += positionChange;
+                    } else if (element.position.z < (maxBoardThickness/2 - maxBoardThickness)) {
+                        element.position.y -= positionChange;
+                    }
+                }
+            }
+        }
+    }
+
+
+    // UPDATE WIDTH
+
+    updateWidth( sliderValue ) {
+        this.setWidth(this.desk, sliderValue/100);
+        this.updateArea( this.desk);
+        this.updateEdgeLength( this.desk);
+        this.applyEdgeOverhead( this.desk,
+                                        { 's6' : 1.2,
+                                        's20' : 1.2 });
+        this.updatePrice( this.desk, 
+                                    { 's6' : 0.5,
+                                    's20' : 1.5 },
+                                    { 'stopki-0.5' : 0.5 });
+    }
+
+
+    updateDepth( sliderValue ) {
+        this.setDepth(this.desk, sliderValue/100);
+        this.updateArea( this.desk);
+        this.updateEdgeLength( this.desk);
+        this.applyEdgeOverhead( this.desk,
+                                        { 's6' : 1.2,
+                                        's20' : 1.2 });
+        this.updatePrice( this.desk, 
+                                    { 's6' : 0.5,
+                                    's20' : 1.5 },
+                                    { 'stopki-0.5' : 0.5 });
+    }
+
+
+    updateHeight( sliderValue ) {
+        this.setHeight(this.desk, sliderValue/100);
+        this.updateArea( this.desk);
+        this.updateEdgeLength( this.desk);
+        this.applyEdgeOverhead( this.desk,
+                                        { 's6' : 1.2,
+                                        's20' : 1.2 });
+        this.updatePrice( this.desk, 
+                                    { 's6' : 0.5,
+                                    's20' : 1.5 },
+                                    { 'stopki-0.5' : 0.5 });
+    }
+
+    // SET TEXTURE UV DIRECTION AND SCALE
 
     updateUV( object ) {
 
@@ -556,27 +543,8 @@ class App{
         }
     }
 
-    clickAction( ) {
 
-        var slider = document.getElementById("myRange");
-        console.log(slider.value);
-        this.setWidth.bind(this, this.scene.children[0], 1.40);
-
-    }
-
-    updateWidth( sliderValue ) {
-        this.setWidth(this.desk, sliderValue/100);
-        this.updateArea( this.desk);
-        // this.updateUV( this.desk )
-        this.updateEdgeLength( this.desk);
-        this.applyEdgeOverhead( this.desk,
-                                        { 's6' : 1.2,
-                                        's20' : 1.2 });
-        this.updatePrice( this.desk, 
-                                    { 's6' : 0.5,
-                                    's20' : 1.5 },
-                                    { 'stopki-0.5' : 0.5 });
-    }
+    // COUNT AREA, CURRENT DIMENSIONS
 
     updateArea( object ) {
         object.area = 0;
@@ -594,6 +562,8 @@ class App{
             object.area += element.area;
         }
     }
+
+    // COUNT EDGES
 
     updateEdgeLength( object ) {
         object.edges = {};
@@ -636,6 +606,8 @@ class App{
         }
     }
 
+    // COUNT PRICES
+
     updatePrice( object, edgePrices, componentPrices ) {
         let price = (object.area * 1.1 * 25 + object.area * 1.1 * 15 + this.countEdgePrices( object, edgePrices ) + this.countComponentCosts( object, componentPrices )) * 2.9;
         var priceElement = document.getElementById("price");
@@ -656,6 +628,8 @@ class App{
         return amount;
     }
 
+
+    // COMPONENTS
 
     addComponents ( object, componentToAdd ) {
         object.components = {};
@@ -683,39 +657,18 @@ class App{
 
     createColorElements() {
         for (var i = 1; i < 30; i++) {
-            // console.log(i);
-            // tworzy nowy element div
-            // i daje jego zawartość
             var newColorDiv = document.createElement("div");
             newColorDiv.classList.add('color');
             newColorDiv.innerHTML = "<img src='textures/" + i + ".jpg' alt='" + (i-1) + "' onclick='myFunction(this);'>";
-
-            // add the newly created element and it's content into the DOM
             document.getElementById("colorContainer").appendChild(newColorDiv);
-            // document.body.insertBefore(newDiv, my_div).appendChild(newColorDiv);
-            // console.log();
         }
     }
 
     changeColor(colorId) {
         for (var i = 0; i < 4; i++) {
             let texture = this.textures[colorId];
-            // let textureRotated = this.texturesRotated[colorId];
-            // texture.rotation = Math.PI / 2;
-            // texture.offset.set(0, 1);
-            // texture.mapping = CubeReflectionMapping;
             this.desk.children[i].material.map = texture;
         }
-
-        // for (let element of object.children) {
-        //     let texture = this.textures[colorId];
-        //     let textureRotated = this.texturesRotated[colorId];
-        //     // texture.rotation = Math.PI / 2;
-        //     // texture.offset.set(0, 1);
-        //     // texture.mapping = CubeReflectionMapping;
-        //     if (element.dimensionsDefault.width)
-        //     element.material.map = textureRotated;
-        // }
     }
 
 }

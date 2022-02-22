@@ -8,13 +8,13 @@ body {
   color: white;
 }
 
-.widthContainer {
+.widthContainer, .depthContainer, .heightContainer {
     padding: 5px;
     float: left;
 }
 
 /* Style the images inside the grid */
-.widthContainer p {
+.widthContainer p, .depthContainer p, .heightContainer p {
     padding: 5px;
 }
 

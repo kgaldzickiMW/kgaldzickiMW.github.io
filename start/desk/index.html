@@ -28,6 +28,16 @@
                 <input type="range" min="60" max="200" value="160"  step='5' class="slider" id="width">
                 <p>Width: <input type="number" id="widthNumber" name="widthNumber" min="60" max="200" value="160"></p>
             </div>
+
+            <div class="depthContainer">
+                <input type="range" min="40" max="100" value="70"  step='5' class="slider" id="depth">
+                <p>Depth: <input type="number" id="depthNumber" name="depthNumber" min="40" max="100" value="70"></p>
+            </div>
+
+            <div class="heightContainer">
+                <input type="range" min="40" max="100" value="75"  step='5' class="slider" id="height">
+                <p>Height: <input type="number" id="heightNumber" name="heightNumber" min="40" max="100" value="75"></p>
+            </div>
     
             <div class="priceContainer" id="priceContainer">
                 <p>Price: $<span id="price"></span></p>
@@ -53,19 +63,57 @@
 
             // });
 
-            var slider = document.getElementById("width");
-            var output = document.getElementById("widthNumber");
-            output.value = slider.value;
 
-            slider.oninput = function() {
-                output.value = this.value;
+            // WIDTH
+
+            var sliderWidth = document.getElementById("width");
+            var numberWidth = document.getElementById("widthNumber");
+            numberWidth.value = sliderWidth.value;
+
+            sliderWidth.oninput = function() {
+                numberWidth.value = this.value;
                 app.updateWidth(this.value);
             }
 
-            output.onchange = function() {
-                slider.value = this.value;
+            numberWidth.onchange = function() {
+                sliderWidth.value = this.value;
                 app.updateWidth(this.value);
             }
+
+            // DEPTH
+
+            var sliderDepth = document.getElementById("depth");
+            var numberDepth = document.getElementById("depthNumber");
+            numberDepth.value = sliderDepth.value;
+
+            sliderDepth.oninput = function() {
+                numberDepth.value = this.value;
+                app.updateDepth(this.value);
+            }
+
+            numberDepth.onchange = function() {
+                sliderDepth.value = this.value;
+                app.updateDepth(this.value);
+            }
+
+
+            // HEIGHT
+
+            var sliderHeight = document.getElementById("height");
+            var numberHeight = document.getElementById("heightNumber");
+            numberHeight.value = sliderHeight.value;
+
+            sliderHeight.oninput = function() {
+                numberHeight.value = this.value;
+                app.updateHeight(this.value);
+            }
+
+            numberHeight.onchange = function() {
+                sliderHeight.value = this.value;
+                app.updateHeight(this.value);
+            }
+
+
 
             // function myFunction(object) {
             //     console.log(this);
