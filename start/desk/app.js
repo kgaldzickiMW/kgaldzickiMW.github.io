@@ -50,10 +50,17 @@ class App{
         // TEXTURE
         this.textureLoader = new THREE.TextureLoader();
         this.textures = [];
+        this.texturesRotated = [];
         this.materialNb = 0;
 
         for (var i = 1; i < 30; i++) {
-            this.textures.push(this.textureLoader.load( 'textures/' + i + '.jpg' ));
+            this.textures.push(this.textureLoader.load( 'textures/' + i + '.jpg' , function ( texture ) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            }));
+            this.texturesRotated.push(this.textureLoader.load( 'textures/' + i + '.jpg' , function ( texture ) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.rotation = Math.PI / 2;
+            }));
         }
 
         // this.dekorLegno = this.textureLoader.load( 'textures/legno_jasne_r_48026.jpg' );
@@ -76,6 +83,27 @@ class App{
     addObjectFromJson ( text ) {
         let json = JSON.parse( text);
         this.desk = this.loader.parse( json.object );
+
+        this.updateUV( this.desk );
+        // // MODIFY UV
+        // var uvAttribute = this.desk.children[0].geometry.attributes.uv;
+		
+        // for ( var i = 0; i < uvAttribute.count; i ++ ) {
+             
+        //     if (Math.floor( (i ) / 4) != 2 && Math.floor( (i ) / 4) != 3 ) {
+        //         console.log(i);
+        //         var u = uvAttribute.getX( i );
+        //         var v = uvAttribute.getY( i );
+                        
+        //         // do something with uv
+        //         // u = u * 0.25;
+        //         v = v * 0.03125;
+        //         // write values back to attribute
+        //         // console.log('count');
+        //         uvAttribute.setXY( i, u, v );
+        //     }
+                
+        // }
         this.scene.add(this.desk);
         this.scene.background = new THREE.Color( 0xdddddd );
 
@@ -416,6 +444,118 @@ class App{
         }
     }
 
+    updateUV( object ) {
+
+        for (let element of object.children) {
+            this.updateUVEdgeTextures(element);
+            this.updateUVTextureRotation(element);
+        }
+
+    }
+
+
+    updateUVTextureRotation( element ) {
+        if (element.textureDirection === undefined) {
+
+            let uvAttribute = element.geometry.attributes.uv;
+
+            let elemHeight = element.geometry.parameters.height;
+            let elemDepth = element.geometry.parameters.depth;
+            let elemWidth = element.geometry.parameters.width;
+
+            if (elemWidth > elemDepth && elemWidth > elemHeight ) {
+                if ( elemDepth > elemHeight ) {
+                    for ( var i = 0; i < uvAttribute.count; i ++ ) {
+                        if (Math.floor( ( i ) / 4) == 2 ||  Math.floor( ( i ) / 4) == 3) {
+                            this.rotateUV( i, uvAttribute );
+                        }
+                    }
+                } else {
+                    for ( var i = 0; i < uvAttribute.count; i ++ ) {
+                        if (Math.floor( ( i ) / 4) == 4 ||  Math.floor( ( i ) / 4) == 5) {
+                            this.rotateUV( i, uvAttribute );
+                        }
+                    }
+                }
+            }
+
+
+            if (elemDepth > elemWidth && elemDepth > elemHeight ) {
+                if ( elemHeight > elemWidth ) {
+                    for ( var i = 0; i < uvAttribute.count; i ++ ) {
+                        if (Math.floor( ( i ) / 4) == 0 ||  Math.floor( ( i ) / 4) == 1) {
+                            this.rotateUV( i, uvAttribute );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    updateUVEdgeTextures( element ) {
+        
+        let uvAttribute = element.geometry.attributes.uv;
+
+        let elemHeight = element.geometry.parameters.height;
+        let elemDepth = element.geometry.parameters.depth;
+        let elemWidth = element.geometry.parameters.width;
+
+        if (elemHeight < elemDepth && elemHeight < elemWidth) {
+            for ( var i = 0; i < uvAttribute.count; i ++ ) {
+                if (Math.floor( ( i ) / 4) != 2 &&  Math.floor( ( i ) / 4) != 3) {
+                    this.rotateUV( i, uvAttribute );
+                    this.scaleUVEdge( i, uvAttribute );
+                }
+            }
+        }
+
+        if (elemDepth < elemHeight && elemDepth < elemWidth) {
+            for ( var i = 0; i < uvAttribute.count; i ++ ) {
+                if (Math.floor( ( i ) / 4) == 2 ||  Math.floor( ( i ) / 4) == 3) {
+                    this.rotateUV( i, uvAttribute );
+                    this.scaleUVEdge( i, uvAttribute );
+                }
+                else if (Math.floor( ( i ) / 4) == 0 ||  Math.floor( ( i ) / 4) == 1) {
+                    this.scaleUVEdge( i, uvAttribute );
+                }
+            }
+        }
+
+        if (elemWidth < elemDepth && elemWidth < elemHeight) {
+            for ( var i = 0; i < uvAttribute.count; i ++ ) {
+                if (Math.floor( ( i ) / 4) != 0 &&  Math.floor( ( i ) / 4) != 1) {
+                    this.scaleUVEdge( i, uvAttribute );
+                }
+            }
+        }
+    }
+
+    scaleUVEdge( i, uvAttribute ) {
+        var u = uvAttribute.getX( i );
+        var v = uvAttribute.getY( i );
+        u = u * (0.125 / 5);
+        uvAttribute.setXY( i, u, v );
+    }
+
+    rotateUV( i, uvAttribute ) {
+        let vertexNb = i % 4;
+
+        switch (vertexNb) {
+            case 0:
+                uvAttribute.setXY( i, 1, 1 );
+                break;
+            case 1:
+                uvAttribute.setXY( i, 1, 0 );
+                break;
+            case 2:
+                uvAttribute.setXY( i, 0, 1 );
+                break;
+            case 3:
+                uvAttribute.setXY( i, 0, 0 );
+                break;
+        }
+    }
+
     clickAction( ) {
 
         var slider = document.getElementById("myRange");
@@ -427,6 +567,7 @@ class App{
     updateWidth( sliderValue ) {
         this.setWidth(this.desk, sliderValue/100);
         this.updateArea( this.desk);
+        // this.updateUV( this.desk )
         this.updateEdgeLength( this.desk);
         this.applyEdgeOverhead( this.desk,
                                         { 's6' : 1.2,
@@ -558,8 +699,23 @@ class App{
 
     changeColor(colorId) {
         for (var i = 0; i < 4; i++) {
-            this.desk.children[i].material.map = this.textures[colorId];
+            let texture = this.textures[colorId];
+            // let textureRotated = this.texturesRotated[colorId];
+            // texture.rotation = Math.PI / 2;
+            // texture.offset.set(0, 1);
+            // texture.mapping = CubeReflectionMapping;
+            this.desk.children[i].material.map = texture;
         }
+
+        // for (let element of object.children) {
+        //     let texture = this.textures[colorId];
+        //     let textureRotated = this.texturesRotated[colorId];
+        //     // texture.rotation = Math.PI / 2;
+        //     // texture.offset.set(0, 1);
+        //     // texture.mapping = CubeReflectionMapping;
+        //     if (element.dimensionsDefault.width)
+        //     element.material.map = textureRotated;
+        // }
     }
 
 }
